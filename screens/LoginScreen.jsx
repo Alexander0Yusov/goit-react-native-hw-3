@@ -12,28 +12,31 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
 } from "react-native";
+import { Formik } from "formik";
+import * as Yup from "yup";
+
+const SignupSchema = Yup.object().shape({
+  mail: Yup.string()
+    .email("Invalid email")
+    .required("Enter Your email, please!"),
+  password: Yup.string()
+    .min(4)
+    .required("Enter Your password, please!")
+    .matches(
+      /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{4,}$/,
+      "Min: 4 symbols, one uppercase letter, one lowercase letter, one number, one special symbol"
+    ),
+});
 
 export default LoginScreen = () => {
   const [isMailFocus, setIsMailFocus] = useState(false);
   const [isPassFocus, setIsPassFocus] = useState(false);
-
-  const [mail, setMail] = useState("");
-  const [password, setPassword] = useState("");
 
   const [isPasswordShow, setIsPasswordShow] = useState(false);
   const [isFormActive, setIsFormActive] = useState(false);
 
   const PasswordShowHandler = () => {
     setIsPasswordShow(!isPasswordShow);
-  };
-
-  const loginHandler = () => {
-    const formData = {
-      mail: String(mail).trim(),
-      password: String(password).trim(),
-    };
-
-    console.log("login: ", formData);
   };
 
   const toSignUpPage = () => {
@@ -52,84 +55,114 @@ export default LoginScreen = () => {
           style={styles.backgroundImage}
           source={require("../assets/images/Photo-BG.jpg")}
         >
-          <TouchableWithoutFeedback
-            onPress={() => {
-              Keyboard.dismiss();
-              setIsFormActive(false);
-            }}
+          <Formik
+            initialValues={{ mail: "", password: "" }}
+            validationSchema={SignupSchema}
+            onSubmit={(values) => console.log(JSON.stringify(values))}
           >
-            <View style={[styles.form, isFormActive && { height: 230 }]}>
-              <Text style={styles.title}>Увійти</Text>
-
-              <TextInput
-                style={[styles.input, isMailFocus && styles.focusedInput]}
-                onFocus={() => {
-                  setIsMailFocus(true);
-                  setIsFormActive(true);
+            {({
+              values,
+              errors,
+              touched,
+              handleChange,
+              setFieldTouched,
+              isValid,
+              handleSubmit,
+            }) => (
+              <TouchableWithoutFeedback
+                onPress={() => {
+                  Keyboard.dismiss();
+                  setIsFormActive(false);
                 }}
-                onBlur={() => setIsMailFocus(false)}
-                placeholder="Електронна пошта"
-                cursorColor={"black"}
-                paddingLeft={16}
-                value={mail}
-                onChangeText={setMail}
-                keyboardType="email-address"
-              />
-
-              <KeyboardAvoidingView
-                style={{ width: "100%" }}
-                behavior={Platform.OS == "ios" ? "padding" : "height"}
               >
-                <View style={styles.wrapInputPass}>
+                <View style={[styles.form, isFormActive && { height: 270 }]}>
+                  <Text style={styles.title}>Увійти</Text>
+
                   <TextInput
-                    style={[
-                      styles.inputPass,
-                      isPassFocus && styles.focusedInput,
-                    ]}
+                    style={[styles.input, isMailFocus && styles.focusedInput]}
                     onFocus={() => {
-                      setIsPassFocus(true);
+                      setIsMailFocus(true);
                       setIsFormActive(true);
                     }}
-                    onBlur={() => setIsPassFocus(false)}
-                    placeholder="Пароль"
+                    onBlur={() => {
+                      setIsMailFocus(false);
+                      setFieldTouched("mail");
+                    }}
+                    placeholder="Електронна пошта"
                     cursorColor={"black"}
                     paddingLeft={16}
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry={isPasswordShow ? false : true}
+                    value={values.mail}
+                    onChangeText={handleChange("mail")}
+                    keyboardType="email-address"
                   />
+                  {touched.mail && errors.mail && <Text>{errors.mail}</Text>}
+
+                  <KeyboardAvoidingView
+                    style={{ width: "100%" }}
+                    behavior={Platform.OS == "ios" ? "padding" : "height"}
+                  >
+                    <View style={styles.wrapInputPass}>
+                      <TextInput
+                        style={[
+                          styles.inputPass,
+                          isPassFocus && styles.focusedInput,
+                        ]}
+                        onFocus={() => {
+                          setIsPassFocus(true);
+                          setIsFormActive(true);
+                        }}
+                        onBlur={() => {
+                          setIsPassFocus(false);
+                          setFieldTouched("password");
+                        }}
+                        placeholder="Пароль"
+                        cursorColor={"black"}
+                        paddingLeft={16}
+                        value={values.password}
+                        onChangeText={handleChange("password")}
+                        secureTextEntry={isPasswordShow ? false : true}
+                      />
+                      {touched.password && errors.password && (
+                        <Text>{errors.password}</Text>
+                      )}
+
+                      <TouchableOpacity
+                        style={styles.buttonShowPass}
+                        activeOpacity={0.8}
+                        onPress={PasswordShowHandler}
+                      >
+                        <Text style={styles.buttonSlaveText}>
+                          {isPasswordShow ? "Сховати" : "Показати"}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  </KeyboardAvoidingView>
 
                   <TouchableOpacity
-                    style={styles.buttonShowPass}
+                    style={[
+                      styles.buttonMaster,
+                      { backgroundColor: isValid ? "#FF6C00" : "#FF6C0066" },
+                    ]}
                     activeOpacity={0.8}
-                    onPress={PasswordShowHandler}
+                    onPress={handleSubmit}
+                    disabled={!isValid}
+                  >
+                    <Text style={styles.buttonMasterText}>Увійти</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={styles.buttonSlave}
+                    activeOpacity={0.8}
+                    onPress={toSignUpPage}
                   >
                     <Text style={styles.buttonSlaveText}>
-                      {isPasswordShow ? "Сховати" : "Показати"}
+                      Немає акаунту? Зареєструватися
                     </Text>
                   </TouchableOpacity>
                 </View>
-              </KeyboardAvoidingView>
-
-              <TouchableOpacity
-                style={styles.buttonMaster}
-                activeOpacity={0.8}
-                onPress={loginHandler}
-              >
-                <Text style={styles.buttonMasterText}>Увійти</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.buttonSlave}
-                activeOpacity={0.8}
-                onPress={toSignUpPage}
-              >
-                <Text style={styles.buttonSlaveText}>
-                  Немає акаунту? Зареєструватися
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </TouchableWithoutFeedback>
+              </TouchableWithoutFeedback>
+            )}
+          </Formik>
         </ImageBackground>
       </TouchableWithoutFeedback>
     </View>
@@ -204,6 +237,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 50,
     marginTop: 15,
+    alignItems: "center",
 
     // borderWidth: 1,
     // borderColor: "red",
@@ -219,7 +253,7 @@ const styles = StyleSheet.create({
     // borderColor: "red",
   },
   buttonMaster: {
-    marginTop: 30,
+    marginTop: 56,
     height: 50,
     width: "100%",
     alignItems: "center",

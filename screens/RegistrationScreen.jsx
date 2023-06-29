@@ -18,14 +18,14 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 
 const SignupSchema = Yup.object().shape({
-  _login: Yup.string()
+  login: Yup.string()
     .min(2, "Too Short!")
     .max(50, "Too Long!")
     .required("Enter Your login, please!"),
-  _mail: Yup.string()
+  mail: Yup.string()
     .email("Invalid email")
     .required("Enter Your email, please!"),
-  _password: Yup.string()
+  password: Yup.string()
     .min(4)
     .required("Enter Your password, please!")
     .matches(
@@ -38,24 +38,12 @@ export default RegistrationScreen = () => {
   const [isLoginFocus, setIsLoginFocus] = useState(false);
   const [isMailFocus, setIsMailFocus] = useState(false);
   const [isPassFocus, setIsPassFocus] = useState(false);
-  const [login, setLogin] = useState("");
-  const [mail, setMail] = useState("");
-  const [password, setPassword] = useState("");
+
   const [isPasswordShow, setIsPasswordShow] = useState(false);
   const [isFormActive, setIsFormActive] = useState(false);
 
   const PasswordShowHandler = () => {
     setIsPasswordShow(!isPasswordShow);
-  };
-
-  const signUpHandler = () => {
-    const formData = {
-      login: String(login).trim(),
-      mail: String(mail).trim(),
-      password: String(password).trim(),
-    };
-
-    console.log("signUp: ", formData);
   };
 
   const toLoginPage = () => {
@@ -65,6 +53,7 @@ export default RegistrationScreen = () => {
   return (
     <View style={styles.container}>
       <TouchableWithoutFeedback
+        style={{ borderWidth: 3, borderColor: "red" }}
         onPress={() => {
           Keyboard.dismiss();
           setIsFormActive(false);
@@ -74,26 +63,27 @@ export default RegistrationScreen = () => {
           style={styles.backgroundImage}
           source={require("../assets/images/Photo-BG.jpg")}
         >
-          <TouchableWithoutFeedback
-            onPress={() => {
-              Keyboard.dismiss();
-              setIsFormActive(false);
-            }}
+          <Formik
+            initialValues={{ login: "", mail: "", password: "" }}
+            validationSchema={SignupSchema}
+            onSubmit={(values) => console.log(JSON.stringify(values))}
           >
-            <Formik
-              initialValues={{ _login: "", _mail: "", _password: "" }}
-              validationSchema={SignupSchema}
-              onSubmit={(values) => console.log(JSON.stringify(values))}
-            >
-              {({
-                values,
-                errors,
-                touched,
-                handleChange,
-                setFieldTouched,
-                isValid,
-                handleSubmit,
-              }) => (
+            {({
+              values,
+              errors,
+              touched,
+              handleChange,
+              setFieldTouched,
+              isValid,
+              handleSubmit,
+            }) => (
+              <TouchableWithoutFeedback
+                style={{ borderWidth: 1, borderColor: "red" }}
+                onPress={() => {
+                  Keyboard.dismiss();
+                  setIsFormActive(false);
+                }}
+              >
                 <View style={[styles.form, isFormActive && { height: 380 }]}>
                   <View style={styles.imageThumb}>
                     <TouchableOpacity
@@ -126,17 +116,15 @@ export default RegistrationScreen = () => {
                     }}
                     onBlur={() => {
                       setIsLoginFocus(false);
-                      setFieldTouched("_login");
+                      setFieldTouched("login");
                     }}
                     placeholder="Логін"
                     cursorColor={"black"}
                     paddingLeft={16}
-                    value={values._login}
-                    onChangeText={handleChange("_login")}
+                    value={values.login}
+                    onChangeText={handleChange("login")}
                   />
-                  {touched._login && errors._login && (
-                    <Text>{errors._login}</Text>
-                  )}
+                  {touched.login && errors.login && <Text>{errors.login}</Text>}
 
                   <TextInput
                     style={[styles.input, isMailFocus && styles.focusedInput]}
@@ -146,16 +134,16 @@ export default RegistrationScreen = () => {
                     }}
                     onBlur={() => {
                       setIsMailFocus(false);
-                      setFieldTouched("_mail");
+                      setFieldTouched("mail");
                     }}
                     placeholder="Електронна пошта"
                     cursorColor={"black"}
                     paddingLeft={16}
-                    value={values._mail}
-                    onChangeText={handleChange("_mail")}
+                    value={values.mail}
+                    onChangeText={handleChange("mail")}
                     keyboardType="email-address"
                   />
-                  {touched._mail && errors._mail && <Text>{errors._mail}</Text>}
+                  {touched.mail && errors.mail && <Text>{errors.mail}</Text>}
 
                   <KeyboardAvoidingView
                     style={{ width: "100%" }}
@@ -173,17 +161,17 @@ export default RegistrationScreen = () => {
                         }}
                         onBlur={() => {
                           setIsPassFocus(false);
-                          setFieldTouched("_password");
+                          setFieldTouched("password");
                         }}
                         placeholder="Пароль"
                         cursorColor={"black"}
                         paddingLeft={16}
-                        value={values._password}
-                        onChangeText={handleChange("_password")}
+                        value={values.password}
+                        onChangeText={handleChange("password")}
                         secureTextEntry={isPasswordShow ? false : true}
                       />
-                      {touched._password && errors._password && (
-                        <Text>{errors._password}</Text>
+                      {touched.password && errors.password && (
+                        <Text>{errors.password}</Text>
                       )}
 
                       <TouchableOpacity
@@ -201,7 +189,7 @@ export default RegistrationScreen = () => {
                   <TouchableOpacity
                     style={[
                       styles.buttonMaster,
-                      { backgroundColor: isValid ? "blue" : "red" },
+                      { backgroundColor: isValid ? "#FF6C00" : "#FF6C0066" },
                     ]}
                     activeOpacity={0.8}
                     onPress={handleSubmit}
@@ -220,9 +208,9 @@ export default RegistrationScreen = () => {
                     </Text>
                   </TouchableOpacity>
                 </View>
-              )}
-            </Formik>
-          </TouchableWithoutFeedback>
+              </TouchableWithoutFeedback>
+            )}
+          </Formik>
         </ImageBackground>
       </TouchableWithoutFeedback>
     </View>
@@ -323,6 +311,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 50,
     marginTop: 15,
+    alignItems: "center",
 
     // borderWidth: 1,
     // borderColor: "red",
