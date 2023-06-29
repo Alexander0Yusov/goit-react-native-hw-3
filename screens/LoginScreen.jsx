@@ -14,11 +14,9 @@ import {
 } from "react-native";
 
 export default LoginScreen = () => {
-  const [isLoginFocus, setIsLoginFocus] = useState(false);
   const [isMailFocus, setIsMailFocus] = useState(false);
   const [isPassFocus, setIsPassFocus] = useState(false);
 
-  const [login, setLogin] = useState("");
   const [mail, setMail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -29,12 +27,17 @@ export default LoginScreen = () => {
     setIsPasswordShow(!isPasswordShow);
   };
 
-  const signUpHandler = () => {
-    console.log("signUp");
+  const loginHandler = () => {
+    const formData = {
+      mail: String(mail).trim(),
+      password: String(password).trim(),
+    };
+
+    console.log("login: ", formData);
   };
 
-  const toLoginPage = () => {
-    console.log("goLoginPage");
+  const toSignUpPage = () => {
+    console.log("goSignUpPage");
   };
 
   return (
@@ -69,7 +72,8 @@ export default LoginScreen = () => {
                 cursorColor={"black"}
                 paddingLeft={16}
                 value={mail}
-                onChange={(e) => setMail(e.target.value)}
+                onChangeText={setMail}
+                keyboardType="email-address"
               />
 
               <KeyboardAvoidingView
@@ -91,7 +95,7 @@ export default LoginScreen = () => {
                     cursorColor={"black"}
                     paddingLeft={16}
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChangeText={setPassword}
                     secureTextEntry={isPasswordShow ? false : true}
                   />
 
@@ -110,7 +114,7 @@ export default LoginScreen = () => {
               <TouchableOpacity
                 style={styles.buttonMaster}
                 activeOpacity={0.8}
-                onPress={signUpHandler}
+                onPress={loginHandler}
               >
                 <Text style={styles.buttonMasterText}>Увійти</Text>
               </TouchableOpacity>
@@ -118,7 +122,7 @@ export default LoginScreen = () => {
               <TouchableOpacity
                 style={styles.buttonSlave}
                 activeOpacity={0.8}
-                onPress={toLoginPage}
+                onPress={toSignUpPage}
               >
                 <Text style={styles.buttonSlaveText}>
                   Немає акаунту? Зареєструватися
